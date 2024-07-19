@@ -19,6 +19,20 @@ $functions = [
         // The capabilities that a user must have to use the function.
         'capabilities' => '',
     ],
+    'local_course_recommendations_ws_get_categories' => [
+        'classname' => 'local_course_recommendations_ws\external\get_categories',
+        'description' => 'Get course categories.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => '',
+    ],
+    'local_course_recommendations_ws_get_courses' => [
+        'classname' => 'local_course_recommendations_ws\external\get_courses',
+        'description' => 'Get courses in a category.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => '',
+    ],
 ];
 
 $services = [
@@ -28,6 +42,8 @@ $services = [
         // A list of external functions available in this service.
         'functions' => [
             'local_course_recommendations_ws_get_recommendations',
+            'local_course_recommendations_ws_get_categories',
+            'local_course_recommendations_ws_get_courses',
         ],
 
         // The required capability of the user to access this service.

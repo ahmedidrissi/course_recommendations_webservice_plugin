@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_course_recommendations_ws';
 $plugin->release = '0.1.0';
-$plugin->version = 2024071618;
+$plugin->version = 2024071900;
 $plugin->requires = 2024041600;
 $plugin->maturity = MATURITY_ALPHA;

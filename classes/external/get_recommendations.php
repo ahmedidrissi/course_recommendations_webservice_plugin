@@ -78,10 +78,9 @@ class get_recommendations extends external_api
 
         // Create an empty array to store the recommendations
         $recommendations = array();
-        $items = self::get_categories_and_courses($category_id);
 
         // Get the recommendations
-        $recommendations = self::send_request($user_id, $institution, $function, $items);
+        $recommendations = self::send_request($institution, $function, $category_id);
 
         // TODO: Validate the recommendations using context
 
@@ -89,104 +88,28 @@ class get_recommendations extends external_api
     }
 
     /**
-     * Helper function to get categories and courses
-     * @param int $category_id the id of the parent category
-     * @return array of categories and courses
-     */
-    private static function get_categories_and_courses($category_id)
-    {
-        $items = [
-            'parent_category' => [],
-            'categories' => [],
-            'subcategories' => [],
-            'courses' => []
-        ];
-
-        if ($category_id != 0) {
-            // Get the top category
-            $category = core_course_category::get($category_id);
-
-            // Add the top category to the items array
-            $items['parent_category'] = [
-                'id' => $category->id,
-                'name' => $category->get_formatted_name(),
-                'coursecount' => $category->get_courses_count(),
-                'parent' => $category->get_parent_coursecat()->id,
-                'depth' => $category->depth,
-                'path' => $category->path
-            ];
-
-            // Get the categories under the top category
-            $categories = $category->get_children();
-
-            foreach ($categories as $category) {
-                // Add the category to the items array
-                $items['categories'][] = [
-                    'id' => $category->id,
-                    'name' => $category->get_formatted_name(),
-                    'coursecount' => $category->get_courses_count(),
-                    'parent' => $category->get_parent_coursecat()->id,
-                    'depth' => $category->depth,
-                    'path' => $category->path
-                ];
-
-                // Get the subcategories of the category
-                $subcategories = $category->get_children();
-
-                foreach ($subcategories as $subcategory) {
-                    // Add the subcategory to the items array
-                    $items['subcategories'][] = [
-                        'id' => $subcategory->id,
-                        'name' => $subcategory->get_formatted_name(),
-                        'coursecount' => $subcategory->get_courses_count(),
-                        'parent' => $subcategory->get_parent_coursecat()->id,
-                        'depth' => $subcategory->depth,
-                        'path' => $subcategory->path
-                    ];
-
-                    // Get the courses under the subcategory
-                    $courses = $subcategory->get_courses();
-                    
-                    foreach ($courses as $course) {
-                        // Add the course to the items array
-                        $items['courses'][] = [
-                            'id' => $course->id,
-                            'category' => $course->category,
-                            'fullname' => $course->get_formatted_fullname(),
-                            'shortname' => $course->get_formatted_shortname(),
-                            'lang' => $course->lang,
-                            'summary' => '',
-                            'timemodified' => userdate($course->timemodified, '%d %B %Y'),
-                            'url' => (new moodle_url('/course/view.php', ['id' => $course->id]))->out(),
-                            'image' => (new moodle_url('/theme/edash/pix/category.jpg'))->out(),
-                        ];
-                    }
-                }
-            }
-        }
-
-        return $items;
-    }
-
-    /**
      * Helper function to send a request to the recommendation engine
-     * @param int $user_id the id of the user
      * @param string $institution the institution of the user
      * @param string $function the function of the user
-     * @param array $items the categories and courses
+     * @param int $category_id the id of the parent category
      * @return array the recommendations
      */
-    private static function send_request($user_id, $institution, $function, $items)
+    private static function send_request($institution, $function, $category_id)
     {
         // FastAPI endpoint
-        $my_api_url = 'http://127.0.0.1:8000/recommendations';
+        $my_api_url = 'http://127.0.0.1:5000/recommendations';
+
+        // Define the language
+        $language = 'en';
+        if ($category_id == 2) {
+            $language = 'fr';
+        }
 
         // Create the data array
         $data = [
-            'user_id' => $user_id,
             'institution' => $institution,
             'function' => $function,
-            'course_data' => $items
+            'lang' => $language,
         ];
 
         // Encode the data to JSON
