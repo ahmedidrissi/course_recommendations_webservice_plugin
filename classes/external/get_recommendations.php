@@ -8,7 +8,9 @@ use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
 use core_external\external_single_structure;
 use core_external\external_value;
+use curl;
 use moodle_url;
+
 
 class get_recommendations extends external_api
 {
@@ -38,9 +40,7 @@ class get_recommendations extends external_api
                 'id' => new external_value(PARAM_INT, 'course id'),
                 'fullname' => new external_value(PARAM_TEXT, 'course name'),
                 'shortname' => new external_value(PARAM_TEXT, 'course short name'),
-                'timemodified' => new external_value(PARAM_INT, 'course last modified time'),
-                'category' => new external_value(PARAM_TEXT, 'course category'),
-                'image' => new external_value(PARAM_TEXT, 'course image'),
+                'category' => new external_value(PARAM_TEXT, 'course category')
             ])
         );
     }
@@ -96,8 +96,13 @@ class get_recommendations extends external_api
      */
     private static function send_request($institution, $function, $category_id)
     {
-        // FastAPI endpoint
-        $my_api_url = 'http://127.0.0.1:5000/recommendations';
+        global $CFG;
+
+        // Get the token
+        $token = self::get_token($CFG->MOODLE_USERNAME, $CFG->MOODLE_PASSWORD);
+
+        // Flask app endpoint
+        $url = $CFG->RECOMMENDER_BASE_URL . '/recommendations';
 
         // Define the language
         $language = 'en';
@@ -105,26 +110,22 @@ class get_recommendations extends external_api
             $language = 'fr';
         }
 
-        // Create the data array
-        $data = [
+        // Prepare the data to be sent
+        $data = array(
             'institution' => $institution,
             'function' => $function,
             'lang' => $language,
-        ];
-
-        // Encode the data to JSON
-        $json_data = json_encode($data);
+        );  
 
         // Create a new cURL resource
-        $ch = curl_init($my_api_url);
+        $ch = curl_init($url);
 
-        // Set the cURL options
+        // Set cURL options
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json'
-        ]);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 
         // Execute the cURL request
         $response = curl_exec($ch);
@@ -142,5 +143,52 @@ class get_recommendations extends external_api
         curl_close($ch);
 
         return $recommendations;
+    }
+
+
+    /**
+     * Helper function to login to the recommendation engine and get the token
+     * @param string $username
+     * @param string $password
+     * @return string the token
+     */
+    private static function get_token($username, $password)
+    {
+        global $CFG;
+        
+        // Flask app endpoint
+        $url = $CFG->RECOMMENDER_BASE_URL . '/auth/token';
+
+        // Prepare the data to be sent
+        $data = array(
+            'username' => $username,
+            'password' => $password,
+        );
+
+        // Create a new cURL resource
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        // Execute the cURL request
+        $response = curl_exec($ch);
+
+        // Check for cURL errors
+        if ($response === false) {
+            throw new \Exception('cURL Error: ' . curl_error($ch));
+        }
+
+        // Decode the JSON response
+        $response = json_decode($response, true);
+        $token = $response['token'];
+
+        // Close the cURL resource
+        curl_close($ch);
+
+        return $token;
     }
 }
