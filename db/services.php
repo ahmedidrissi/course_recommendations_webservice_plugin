@@ -33,6 +33,20 @@ $functions = [
         'ajax' => true,
         'capabilities' => '',
     ],
+    'local_course_recommendations_ws_get_institutions' => [
+        'classname' => 'local_course_recommendations_ws\external\get_institutions',
+        'description' => 'Get institutions.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => '',
+    ],
+    'local_course_recommendations_ws_get_functions' => [
+        'classname' => 'local_course_recommendations_ws\external\get_functions',
+        'description' => 'Get functions.',
+        'type' => 'read',
+        'ajax' => true,
+        'capabilities' => '',
+    ],
 ];
 
 $services = [
@@ -44,6 +58,8 @@ $services = [
             'local_course_recommendations_ws_get_recommendations',
             'local_course_recommendations_ws_get_categories',
             'local_course_recommendations_ws_get_courses',
+            'local_course_recommendations_ws_get_institutions',
+            'local_course_recommendations_ws_get_functions',
         ],
 
         // The required capability of the user to access this service.

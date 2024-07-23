@@ -40,7 +40,8 @@ class get_recommendations extends external_api
                 'id' => new external_value(PARAM_INT, 'course id'),
                 'fullname' => new external_value(PARAM_TEXT, 'course name'),
                 'shortname' => new external_value(PARAM_TEXT, 'course short name'),
-                'category' => new external_value(PARAM_TEXT, 'course category')
+                'category' => new external_value(PARAM_TEXT, 'course category'),
+                'timemodified' => new external_value(PARAM_INT, 'course last modified time'),
             ])
         );
     }
@@ -122,8 +123,10 @@ class get_recommendations extends external_api
 
         // Set cURL options
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Authorization: Bearer ' . $token));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token
+        ));
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
 

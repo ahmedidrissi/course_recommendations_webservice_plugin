@@ -36,6 +36,7 @@ class get_categories extends external_api
                 'parent' => new external_value(PARAM_INT, 'parent category id'),
                 'depth' => new external_value(PARAM_INT, 'category depth'),
                 'path' => new external_value(PARAM_TEXT, 'category path'),
+                'lang' => new external_value(PARAM_TEXT, 'category language'),
             ])
         );
     }
@@ -48,18 +49,45 @@ class get_categories extends external_api
     public static function execute($category_id)
     {
         if ($category_id != 0) {
-            $category = core_course_category::get($category_id);
-            $categories = $category->get_children();
+            $lang = $category_id == 1 ? 'en' : 'fr';
             $result = array();
+            // Get the parent category
+            $category = core_course_category::get($category_id);
+            $result[] = array(
+                'id' => $category->id,
+                'name' => $category->get_formatted_name(),
+                'coursecount' => $category->coursecount,
+                'parent' => $category->parent,
+                'depth' => $category->depth,
+                'path' => $category->path,
+                'lang' => $lang,
+            );
+
+            // Get categories
+            $categories = $category->get_children();
             foreach ($categories as $category) {
                 $result[] = array(
                     'id' => $category->id,
-                    'name' => $category->name,
+                    'name' => $category->get_formatted_name(),
                     'coursecount' => $category->coursecount,
                     'parent' => $category->parent,
                     'depth' => $category->depth,
                     'path' => $category->path,
+                    'lang' => $lang,
                 );
+                // Get subcategories
+                $subcategories = $category->get_children();
+                foreach ($subcategories as $subcategory) {
+                    $result[] = array(
+                        'id' => $subcategory->id,
+                        'name' => $subcategory->get_formatted_name(),
+                        'coursecount' => $subcategory->coursecount,
+                        'parent' => $subcategory->parent,
+                        'depth' => $subcategory->depth,
+                        'path' => $subcategory->path,
+                        'lang' => $lang,
+                    );
+                }
             }
             return $result;
         } else {
