@@ -82,7 +82,12 @@ class get_recommendations extends external_api
         $recommendations = array();
 
         // Get the recommendations
-        $recommendations = self::send_request($institution, $function, $category_id);
+        $recommendations = self::send_request(
+            $user_id,
+            $institution,
+            $function,
+            $category_id
+        );
 
         // TODO: Validate the recommendations using context
 
@@ -96,8 +101,12 @@ class get_recommendations extends external_api
      * @param int $category_id the id of the parent category
      * @return array the recommendations
      */
-    private static function send_request($institution, $function, $category_id)
-    {
+    private static function send_request(
+        $user_id,
+        $institution,
+        $function,
+        $category_id
+    ) {
         global $CFG;
 
         // Get the token
@@ -114,10 +123,11 @@ class get_recommendations extends external_api
 
         // Prepare the data to be sent
         $data = array(
+            'user_id' => $user_id,
             'institution' => format_string($institution),
             'function' => format_string($function),
             'lang' => $language,
-        );  
+        );
 
         // Create a new cURL resource
         $ch = curl_init($url);
@@ -159,7 +169,7 @@ class get_recommendations extends external_api
     private static function get_token($username, $password)
     {
         global $CFG;
-        
+
         // Flask app endpoint
         $url = $CFG->RECOMMENDER_BASE_URL . '/auth/token';
 
