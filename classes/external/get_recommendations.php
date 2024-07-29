@@ -2,6 +2,7 @@
 // Write the external function description.
 namespace local_course_recommendations_ws\external;
 
+use core\plugininfo\format;
 use core_course_category;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -113,8 +114,8 @@ class get_recommendations extends external_api
 
         // Prepare the data to be sent
         $data = array(
-            'institution' => $institution,
-            'function' => $function,
+            'institution' => format_string($institution),
+            'function' => format_string($function),
             'lang' => $language,
         );  
 

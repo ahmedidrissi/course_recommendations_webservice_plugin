@@ -3,7 +3,6 @@
 namespace local_course_recommendations_ws\external;
 
 use core_course_category;
-use core_customfield\category;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
