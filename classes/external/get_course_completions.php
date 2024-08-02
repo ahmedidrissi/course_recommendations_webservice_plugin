@@ -46,7 +46,8 @@ class get_course_completions extends external_api
     {
         global $DB;
 
-        $records = $DB->get_records_sql('SELECT * FROM {course_completions}');
+        // Get only course completions that have a start time
+        $records = $DB->get_records_sql('SELECT * FROM {course_completions} WHERE timestarted > 0');
 
         $course_completions = array();
         foreach ($records as $record) {
