@@ -55,9 +55,9 @@ class get_course_completions extends external_api
                 'id' => $record->id,
                 'course_id' => $record->course,
                 'user_id' => $record->userid,
-                'timeenrolled' => $record->timeenrolled,
-                'timestarted' => $record->timestarted,
-                'timecompleted' => $record->timecompleted
+                'timeenrolled' => $record->timeenrolled ?? 0,
+                'timestarted' => $record->timestarted ?? 0,
+                'timecompleted' => $record->timecompleted ?? 0
             );
         }
 
